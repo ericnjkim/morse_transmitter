@@ -8,9 +8,11 @@ from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 from scripts.core.functions_morse_translator import translate
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
-# if os.path.exists(UI_FILE):
-#     print("test")
 
+
+# add keyboard inputs
+# close off pte to manual typing
+# add receiving message box
 
 class MorseTransmitter(QtWidgets.QWidget):
 
@@ -54,10 +56,12 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.pte_message_sent.clear()
         self.space_detector = 0
 
-
+# plaint text edit needs to be uneditable
 if __name__ == "__main__":
+    from pathlib import Path
+
     app = QApplication(sys.argv)
-    # # set style
+    app.setStyleSheet(Path('material_dark.qss').read_text())
     window = MorseTransmitter()
     window.show()
     sys.exit(app.exec_())
