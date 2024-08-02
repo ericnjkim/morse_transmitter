@@ -1,7 +1,20 @@
 import socket
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((socket.gethostname(), 5050))
 
-msg = server.recv(1024) # a received message from the server up to 1024 bytes
-print(msg.decode("utf-8"))
+def start_client(host, port: int=5050):
+    # host = socket.gethostbyname(socket.gethostname())
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((host, port))
+
+    while True:
+        client.send(input("Message: ").encode("utf-8"))
+        message = client.recv(1024).decode("utf-8")
+        if message == "/close":
+            break
+        else:
+            print(message)
+
+    client.close()
+
+# print("init client")
+# start_client()

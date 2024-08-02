@@ -6,6 +6,8 @@ from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 
 from scripts.core.functions_morse_translator import translate
+from scripts.core.functions_socket.functions_client import start_client
+from scripts.core.functions_socket.functions_server import start_server, create_local_ip
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
@@ -26,8 +28,19 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.btn_slash.clicked.connect(self._btn_slash)
         self.btn_clear.clicked.connect(self._btn_clear)
 
+        self.btn_connect.clicked.connect(self._btn_connect)
+
         self.current_letter = ""
         self.space_detector = 0
+
+        self._start_host()
+
+    def _start_host(self):
+        # server seems to be stopping all other operations from running so it
+        # needs to be on its own thread
+        local_ip = create_local_ip()
+        self.ledit_local_ip.setText(local_ip)
+        # start_server(local_ip)
 
     def _btn_dot(self):
         self.current_letter += "."
@@ -56,12 +69,20 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.pte_message_sent.clear()
         self.space_detector = 0
 
+    def _btn_connect(self):
+        """ Initiates the connection between the local transmitter and a target
+        transmitter.
+        """
+        receiver_ip = self.ledit_receiver_ip.text()
+        # have some sort of check if the ip was valid or not.
+        start_client(receiver_ip)
+
 # plaint text edit needs to be uneditable
 if __name__ == "__main__":
     from pathlib import Path
 
     app = QApplication(sys.argv)
-    app.setStyleSheet(Path('material_dark.qss').read_text())
+    # app.setStyleSheet(Path('material_dark.qss').read_text())
     window = MorseTransmitter()
     window.show()
     sys.exit(app.exec_())

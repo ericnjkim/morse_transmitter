@@ -1,13 +1,48 @@
-import socket
 import threading
+import socket
 
-# create a socket of the ipv4 type that can stream
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((socket.gethostname(), 5050))
+def create_local_ip() -> str:
+    host = socket.gethostbyname(socket.gethostname())
+    return host
 
-server.listen(5)
+def start_server(host: str=create_local_ip(), port: int=5050):
+    port = 5050
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((host, port))
 
-while True:
-    client_socket, address = server.accept()
-    print(f"[CONNECTED] {address}")
-    client_socket.send(bytes("welcome to the server.", "utf-8"))
+    print("Server started")
+
+    server.listen()
+    client, address = server.accept()
+    # return client, address, server
+
+    print("Server started")
+    while True:
+        message = client.recv(1024).decode("utf-8")
+        if message == "/close":
+            break
+        else:
+            print(message)
+
+        client.send(input("Message: ").encode("utf-8"))
+
+    client.close()
+    server.close()
+
+
+
+# print("started server")
+# def handle_client(client, address, server):
+#
+#     while True:
+#         message = client.recv(1024).decode("utf-8")
+#         if message == "/close":
+#             break
+#         else:
+#             print(message)
+#
+#         client.send(input("Message: ").encode("utf-8"))
+#
+#     client.close()
+#     server.close()
+# start_server()
