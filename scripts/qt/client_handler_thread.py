@@ -11,7 +11,8 @@ from scripts.core.functions_socket.functions_server import handle_client
 
 class ClientHandlerThread(QThread):
     message_received = pyqtSignal(str)
-    connection_closed = pyqtSignal(int)
+    connection_closed = pyqtSignal()
+    message_clear = pyqtSignal()
 
     def __init__(self, client, address, server):
         super().__init__()
@@ -23,14 +24,20 @@ class ClientHandlerThread(QThread):
 
         while True:
             message = self.client.recv(1024).decode("utf-8")
+            print("loop")
             if message == "/close":
+                print("close operation begun")
+                self.client.close()
+                self.server.close()
+                self.connection_closed.emit()
                 break
+            elif message == "/clear":
+                print("clearing inbox")
+                self.message_clear.emit()
             else:
                 print(message)
                 self.message_received.emit(message)
 
-            self.client.send(input("Message: ").encode("utf-8"))
+            # self.client.send(input("Message: ").encode("utf-8"))
 
-        self.client.close()
-        self.server.close()
-        self.connection_closed.emit(1)
+
