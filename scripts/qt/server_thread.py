@@ -6,13 +6,14 @@ from scripts.core.functions_socket.functions_server import create_local_ip, star
 
 
 class ServerThread(QThread):
-    output_started = pyqtSignal(str)
+    client_connected = pyqtSignal(tuple)
 
     def __init__(self, host, port):
         super().__init__()
-        self.transcriber_model_type = transcriber_model_type
+        self.host = host
+        self.port = port
 
     def run(self):
-        client, address, server = start_server()
-        han
-        self.output_started.emit(transcribed_text)
+        client, address, server = start_server(self.host, self.port)
+        print(client, "client found")
+        self.client_connected.emit((client, address, server))

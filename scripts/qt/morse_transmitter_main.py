@@ -1,20 +1,29 @@
 import os
 import sys
+import threading
 from datetime import datetime
+
 
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 
 from scripts.core.functions_morse_translator import translate
 from scripts.core.functions_socket.functions_client import start_client
-from scripts.core.functions_socket.functions_server import start_server, create_local_ip
+from scripts.core.functions_socket.functions_server import start_server, create_local_ip, handle_client
+from scripts.qt.server_thread import ServerThread
+from scripts.qt.client_handler_thread import ClientHandlerThread
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
+# - Connect buttons to keyboard buttons as well.
+# - See if I can get the morse buttons to be replaced with a single button and
+# work off timing for dots and dashes.
+# # add keyboard inputs
 
-# add keyboard inputs
 # close off pte to manual typing
 # add receiving message box
+
+# if someone connects to this server, immediately connect to them too
 
 class MorseTransmitter(QtWidgets.QWidget):
 
@@ -28,19 +37,41 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.btn_slash.clicked.connect(self._btn_slash)
         self.btn_clear.clicked.connect(self._btn_clear)
 
+        self.btn_start_host.clicked.connect(self._btn_start_host)
         self.btn_connect.clicked.connect(self._btn_connect)
 
         self.current_letter = ""
         self.space_detector = 0
 
-        self._start_host()
-
-    def _start_host(self):
-        # server seems to be stopping all other operations from running so it
-        # needs to be on its own thread
         local_ip = create_local_ip()
         self.ledit_local_ip.setText(local_ip)
+        self.server_thread = ServerThread(local_ip, 5050)
+        self.server_thread.client_connected.connect(self._handle_client)
+        self.client_handler_thread = ClientHandlerThread(None, "", "")
+        self.client_handler_thread.message_received.connect(self._print_received_message)
+
+    def _btn_start_host(self):
+        # server seems to be stopping all other operations from running so it
+        # needs to be on its own thread
+        self.server_thread.start()
+        self.ledit_connection_status.setText("server started...")
+        # thread_start_server = threading.Thread(target=start_server(local_ip))
+        # thread_start_server.start()
         # start_server(local_ip)
+
+    def _handle_client(self, connection_data):
+        client, port, server = connection_data
+        print('run client handle', connection_data)
+        self.client_handler_thread.client = client
+        self.client_handler_thread.port = port
+        self.client_handler_thread.server = server
+        self.client_handler_thread.start()
+
+    def _print_received_message(self, message):
+        # add clear event
+        # add close event
+        print(message)
+        self.pte_message_recv.insertPlainText(message)
 
     def _btn_dot(self):
         self.current_letter += "."

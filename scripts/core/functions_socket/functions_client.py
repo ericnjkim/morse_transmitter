@@ -1,7 +1,7 @@
 import socket
 
 
-def start_client(host, port: int=5050):
+def start_client(host, port: int=5051):
     # host = socket.gethostbyname(socket.gethostname())
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))
@@ -16,5 +16,8 @@ def start_client(host, port: int=5050):
 
     client.close()
 
+
+if __name__ == "__main__":
+    start_client("192.168.25.173")
 # print("init client")
 # start_client()
