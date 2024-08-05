@@ -116,7 +116,7 @@ if __name__ == "__main__":
     from pathlib import Path
 
     app = QApplication(sys.argv)
-    # app.setStyleSheet(Path('material_dark.qss').read_text())
+    app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
     window = MorseTransmitter()
     window.show()
     sys.exit(app.exec_())
