@@ -77,27 +77,8 @@ class MorseTransmitter(QtWidgets.QWidget):
         print("connection_closed")
         self.ledit_connection_status.setText("None")
 
-    def _btn_dot(self):
-        self.current_letter += "."
+    def _btn_transmit(self):
 
-    def _btn_dash(self):
-        self.current_letter += "_"
-
-    def _btn_slash(self):
-        """ Slash is used to signify the end of a letter and two signify a
-        space.
-        """
-        self.space_detector += 1
-        if self.space_detector == 2:
-            self.pte_message_sent.insertPlainText(" ")
-            self.space_detector = 0
-            return None
-
-        character = translate(self.current_letter)
-        if character:
-            self.pte_message_sent.insertPlainText(character)
-            self.current_letter = ""
-            self.space_detector = 0
 
     def _btn_clear(self):
         """ Clears the sent message text window."""
@@ -113,14 +94,11 @@ class MorseTransmitter(QtWidgets.QWidget):
         start_client(receiver_ip)
 
 # plaint text edit needs to be uneditable
-# if __name__ == "__main__":
-from pathlib import Path
+if __name__ == "__main__":
+    from pathlib import Path
 
-app = QApplication(sys.argv)
-# app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
-window = MorseTransmitter()
-window.show()
-sys.exit(app.exec_())
-
-    # btn = QtWidgets.QPushButton()
-    # [print(i) for i in dir(btn)]
+    app = QApplication(sys.argv)
+    # app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
+    window = MorseTransmitter()
+    window.show()
+    sys.exit(app.exec_())
