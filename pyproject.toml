@@ -6,8 +6,9 @@ authors = ["ericnjkim <ericnjkim@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"#"^3.12"
 pyqt5 = "^5.15.11"
+pyinstaller = "^6.9.0"
 
 
 [build-system]

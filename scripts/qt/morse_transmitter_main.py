@@ -11,7 +11,6 @@ from scripts.core.functions_morse_translator import translate
 from scripts.core.functions_socket.functions_client import start_client
 from scripts.core.functions_socket.functions_server import start_server, create_local_ip, handle_client
 from scripts.qt.server_thread import ServerThread
-from scripts.qt.client_handler_thread import ClientHandlerThread
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
@@ -49,24 +48,26 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.server_thread.message_received.connect(self._receive_message)
         self.server_thread.message_clear.connect(self._receive_message_clear)
 
-        # self.server_thread.client_connected.connect(self._handle_client)
-
-        # self.client_handler_thread = ClientHandlerThread(None, "", "")
-        # self.client_handler_thread.message_received.connect(self._print_received_message)
-        # self.client_handler_thread.connection_closed.connect(self._connection_closed)
-        # self.client_handler_thread.message_clear.connect(self._receive_message_clear)
-
     def _btn_start_host(self):
+        """ Begins the transmitter's server for another transmitter to connect
+        to."""
         self.server_thread.start()
         self.ledit_connection_status.setText("server started...")
 
     def _client_connected(self):
+        """ Upon a successful connection, signals user with an updated text."""
         self.ledit_connection_status.setText("client connected")
 
     def _receive_message(self, message):
+        """ Handles the message_received signal when the transmitter receives
+        a message and places it into the received message box.
+        """
         self.pte_message_recv.insertPlainText(message)
 
     def _receive_message_clear(self):
+        """ Handles the message_clear signal when the transmitter receives
+        the prompt to clear the received message box.
+        """
         self.pte_message_recv.clear()
 
     def _connection_closed(self):
@@ -112,14 +113,14 @@ class MorseTransmitter(QtWidgets.QWidget):
         start_client(receiver_ip)
 
 # plaint text edit needs to be uneditable
-if __name__ == "__main__":
-    from pathlib import Path
+# if __name__ == "__main__":
+from pathlib import Path
 
-    app = QApplication(sys.argv)
-    app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
-    window = MorseTransmitter()
-    window.show()
-    sys.exit(app.exec_())
+app = QApplication(sys.argv)
+# app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
+window = MorseTransmitter()
+window.show()
+sys.exit(app.exec_())
 
     # btn = QtWidgets.QPushButton()
     # [print(i) for i in dir(btn)]

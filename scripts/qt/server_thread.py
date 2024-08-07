@@ -9,7 +9,14 @@ from scripts.core.functions_socket.functions_server import create_local_ip, star
 
 # try adding client handler into this qthread
 
+""" Usually I'd prefer to have logic in the core directory but in this case I 
+needed to wire the loop that received messages with a signal emitter.
+"""
+
 class ServerThread(QThread):
+    """ Operations for the transmitter's ability to connect to another
+    transmitter and for handling received messages.
+    """
     # client_connected = pyqtSignal(tuple)
     client_connected = pyqtSignal()
     message_received = pyqtSignal(str)
@@ -21,12 +28,8 @@ class ServerThread(QThread):
         self.host = host
         self.port = port
 
-    # def run(self):
-    #     client, address, server = start_server(self.host, self.port)
-    #     print(client, "client found")
-    #     self.client_connected.emit((client, address, server))
-
     def run(self):
+
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((self.host, self.port))
         server.listen()
