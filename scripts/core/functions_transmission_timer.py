@@ -21,8 +21,10 @@ class MorseTransmissionTimer:
     def end_timer(self):
         self.recorded_time = time.perf_counter() - self.start_time
 
-    def transmission(self):
+    def current_time(self) -> float:
+        return time.perf_counter() - self.start_time
 
+    def transmission(self):
         if self.recorded_time:
             if self.recorded_time <= self.dot_length:
                 return "."
@@ -32,21 +34,3 @@ class MorseTransmissionTimer:
     def reset(self):
         self.recorded_time = 0
         self.start_time = 0
-
-counter = MorseTransmissionTimer()
-counter.start_timer()
-
-time.sleep(2)
-
-counter.end_timer()
-
-print(counter.transmission())
-counter.reset()
-
-counter.start_timer()
-
-time.sleep(0.1)
-
-counter.end_timer()
-
-print(counter.transmission())

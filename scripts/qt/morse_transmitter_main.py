@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import time
 from datetime import datetime
 
 
@@ -8,6 +9,7 @@ from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 
 from scripts.core.functions_morse_translator import translate
+from scripts.core.functions_transmission_timer import MorseTransmissionTimer
 from scripts.core.functions_socket.functions_client import start_client
 from scripts.core.functions_socket.functions_server import start_server, create_local_ip, handle_client
 from scripts.qt.server_thread import ServerThread
@@ -28,12 +30,11 @@ class MorseTransmitter(QtWidgets.QWidget):
 
         uic.loadUi(UI_FILE, self)
 
-        self.btn_dot.clicked.connect(self._btn_dot)
-        self.btn_dot.setShortcut(QtGui.QKeySequence("."))
-        self.btn_dash.clicked.connect(self._btn_dash)
-        self.btn_dash.setShortcut(QtGui.QKeySequence(","))
-        self.btn_slash.clicked.connect(self._btn_slash)
-        self.btn_slash.setShortcut(QtGui.QKeySequence("/"))
+        self.timer = MorseTransmissionTimer()
+
+        self.btn_transmit.pressed.connect(self._btn_transmit_pressed)
+        self.btn_transmit.released.connect(self._btn_transmit_released)
+
         self.btn_clear.clicked.connect(self._btn_clear)
         self.btn_start_host.clicked.connect(self._btn_start_host)
         self.btn_connect.clicked.connect(self._btn_connect)
@@ -77,8 +78,28 @@ class MorseTransmitter(QtWidgets.QWidget):
         print("connection_closed")
         self.ledit_connection_status.setText("None")
 
-    def _btn_transmit(self):
+    def _btn_transmit_pressed(self):
 
+        self.timer.start_timer()
+
+    def _btn_transmit_released(self):
+
+        self.timer.end_timer()
+        transmission = self.timer.transmission()
+        # self.pte_message_sent.insertPlainText(transmission)
+        self.current_letter += transmission
+
+        # if left for a dash amount of time add anohter space
+
+    # need to distinguish hte end of a letter with the end of a word by lenght of time
+    def _space(self):
+        self.timer.reset()
+        self.timer.start_timer()
+
+        while True:
+            time.sleep(0.02) # time samples
+            if self.timer.current_time() >= self.timer.dash_length:
+                self.pte_message_sent
 
     def _btn_clear(self):
         """ Clears the sent message text window."""
