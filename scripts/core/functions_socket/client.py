@@ -2,14 +2,15 @@ import socket
 import threading
 
 
-class Client():
+class Client(threading.Thread):
 
     def __init__(self, server_host, server_port):
+        super().__init__()
         self.server_host = server_host
         self.server_port = server_port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def start_client(self):
+    def run(self):
         self.client.connect((self.server_host, self.server_port))
 
         receive_thread = threading.Thread(target=self.receive_messages)
