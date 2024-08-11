@@ -5,14 +5,16 @@ This gui tool allows itself to be connected to another instance of the gui on
 another machine with the use of the socket library, and uses morse to send
 messages across this connection.
 
+<img src="/_readme_images/morse_transmitter_gui.png" alt="morse_transmitter_gui" width="700"/>
 
 ### Directory contents:
-- bin: Executable files to run the gui tool.
-- scripts: working files for the tool.
-  - scripts/core: All logic for the working operation of the tool including use of the transcription model and any generic python library scripts.
-  - scripts/qt: All qt related scripts for tying the core scripts into the gui's widgets.
-  - scripts/run.py: Target point for the executable files to run the gui from.   
+Further docstrings can be found in modules.
 
+- executables/: Compiled standalone exe to run the project and spec file to build
+the exe.
+- scripts/: working files for the tool.
+  - scripts/core/: All logic for the working operation of the tool including use of the transcription model and any generic python library scripts.
+  - scripts/qt/: All qt related scripts for tying the core scripts into the gui's widgets.
 
 ### Using the tool:
 The gui upon execution requires a connection to be made to another instance of
@@ -29,7 +31,7 @@ space. The receiver should be receiving this message as it is typed out.
 To clear the message, hit the clear button and it will clear on both your and
 the receiver's message window.
 
+
 ### WIP
-- Connect buttons to keyboard buttons as well. 
 - See if I can get the morse buttons to be replaced with a single button and
 work off timing for dots and dashes.
