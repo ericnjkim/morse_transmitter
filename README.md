@@ -15,6 +15,8 @@ the exe.
 - scripts/: working files for the tool.
   - scripts/core/: All logic for the working operation of the tool including use of the transcription model and any generic python library scripts.
   - scripts/qt/: All qt related scripts for tying the core scripts into the gui's widgets.
+    - scripts/qt/qss/: Qt style sheet and icons for the gui.
+    - scripts/qt/ui/: The ui files for the widget layout of the gui.
 
 ### Using the tool:
 The gui upon execution requires a connection to be made to another instance of
@@ -31,6 +33,9 @@ space. The receiver should be receiving this message as it is typed out.
 To clear the message, hit the clear button and it will clear on both your and
 the receiver's message window.
 
+### Credits
+Qss style sheet base before modifications and qss icons: 
+https://github.com/SZinedine/QBreeze
 
 ### WIP
 - See if I can get the morse buttons to be replaced with a single button and
