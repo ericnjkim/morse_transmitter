@@ -1,8 +1,9 @@
+
 import os
 import sys
 import threading
 from datetime import datetime
-
+from pathlib import Path
 
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
@@ -10,19 +11,17 @@ from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 from scripts.core.functions_morse_translator import translate
 from scripts.core.functions_socket.functions_client import start_client
 from scripts.core.functions_socket.functions_server import start_server, create_local_ip, handle_client
+
 from scripts.qt.server_thread import ServerThread
+
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
-# - See if I can get the morse buttons to be replaced with a single button and
-# work off timing for dots and dashes.
-# if someone connects to this server, immediately connect to them too
-
-# right now the gui can only receive one message and has to send one before being able
-# to receive anohter. Check why that is.
 
 class MorseTransmitter(QtWidgets.QWidget):
-
+    """ The main widget that ties the rest of the scripts together. Running an
+    instance of this class will begin the tool.
+    """
     def __init__(self):
         super().__init__()
 
@@ -48,42 +47,42 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.server_thread.message_received.connect(self._receive_message)
         self.server_thread.message_clear.connect(self._receive_message_clear)
 
-    def _btn_start_host(self):
+    def _btn_start_host(self) -> None:
         """ Begins the transmitter's server for another transmitter to connect
         to."""
         self.server_thread.start()
         self.ledit_connection_status.setText("server started...")
 
-    def _client_connected(self):
+    def _client_connected(self) -> None:
         """ Upon a successful connection, signals user with an updated text."""
         self.ledit_connection_status.setText("client connected")
 
-    def _receive_message(self, message):
+    def _receive_message(self, message) -> None:
         """ Handles the message_received signal when the transmitter receives
         a message and places it into the received message box.
         """
         self.pte_message_recv.insertPlainText(message)
 
-    def _receive_message_clear(self):
+    def _receive_message_clear(self) -> None:
         """ Handles the message_clear signal when the transmitter receives
         the prompt to clear the received message box.
         """
         self.pte_message_recv.clear()
 
-    def _connection_closed(self):
+    def _connection_closed(self) -> None:
         """ The closing of the server and client is handled in the thread so
         this function is mainly for other visual operations.
         """
         print("connection_closed")
         self.ledit_connection_status.setText("None")
 
-    def _btn_dot(self):
+    def _btn_dot(self) -> None:
         self.current_letter += "."
 
-    def _btn_dash(self):
+    def _btn_dash(self) -> None:
         self.current_letter += "_"
 
-    def _btn_slash(self):
+    def _btn_slash(self) -> None:
         """ Slash is used to signify the end of a letter and two signify a
         space.
         """
@@ -99,12 +98,12 @@ class MorseTransmitter(QtWidgets.QWidget):
             self.current_letter = ""
             self.space_detector = 0
 
-    def _btn_clear(self):
+    def _btn_clear(self) -> None:
         """ Clears the sent message text window."""
         self.pte_message_sent.clear()
         self.space_detector = 0
 
-    def _btn_connect(self):
+    def _btn_connect(self) -> None:
         """ Initiates the connection between the local transmitter and a target
         transmitter.
         """
@@ -112,15 +111,13 @@ class MorseTransmitter(QtWidgets.QWidget):
         # have some sort of check if the ip was valid or not.
         start_client(receiver_ip)
 
-# plaint text edit needs to be uneditable
-# if __name__ == "__main__":
-from pathlib import Path
 
-app = QApplication(sys.argv)
-app.setStyleSheet(Path('qss/dark.qss').read_text())
-window = MorseTransmitter()
-window.show()
-sys.exit(app.exec_())
+def run() -> None:
+    """ Runs the tool and applies the custom style."""
+    app = QApplication(sys.argv)
+    app.setStyleSheet(Path('qss/dark.qss').read_text())
+    window = MorseTransmitter()
+    window.show()
+    sys.exit(app.exec_())
 
-    # btn = QtWidgets.QPushButton()
-    # [print(i) for i in dir(btn)]
+run()
