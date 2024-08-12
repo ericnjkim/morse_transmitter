@@ -60,8 +60,11 @@ class ClientThread(QThread):
         self.connection_socket.send(message.encode("utf-8"))
 
     def handle_received_message(self, message):
+        if message == "/clear":
+            self.message_clear.emit()
+        else:
+            self.message_received.emit(message)
         logger.debug(f"received message: {message}")
-        # apply message onto pte
 
 
 class ClientReceiveThread(QThread):

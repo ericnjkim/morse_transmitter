@@ -50,7 +50,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.ledit_local_ip.setText(local_ip)
 
         self.server_thread = ServerThread(local_ip, 5051)
-        # self.server_thread.client_connected.connect(self._client_connected)
+        self.server_thread.client_connected.connect(self._client_connected)
         # self.server_thread.message_received.connect(self._receive_message)
         # self.server_thread.message_clear.connect(self._receive_message_clear)
 
@@ -66,20 +66,16 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.ledit_connection_status.setText("server started...")
 
         self.client_thread.start()
+        self.btn_connect.setEnabled(0)
 
-        # """ Upon a successful connection, signals user with an updated text."""
-        # self.ledit_connection_status.setText("client connected")
-
-    # def _client_connected(self):
-    #     # set id
-
-
-
+    def _client_connected(self):
+        self.ledit_connection_status.setText("client connected")
 
     def _receive_message(self, message):
         """ Handles the message_received signal when the transmitter receives
         a message and places it into the received message box.
         """
+        print(f"received message {message}")
         self.pte_message_recv.insertPlainText(message)
 
     def _receive_message_clear(self):
@@ -108,18 +104,25 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.space_detector += 1
         if self.space_detector == 2:
             self.pte_message_sent.insertPlainText(" ")
+            self._transmit_message(" ")
             self.space_detector = 0
             return None
 
         character = translate(self.current_letter)
         if character:
             self.pte_message_sent.insertPlainText(character)
+            self._transmit_message(character)
             self.current_letter = ""
             self.space_detector = 0
+
+    def _transmit_message(self, message):
+        if len(self.server_thread.connection_map) == 2:
+            self.client_thread.send_message(message)
 
     def _btn_clear(self):
         """ Clears the sent message text window."""
         self.pte_message_sent.clear()
+        self._transmit_message("/clear")
         self.space_detector = 0
 
     def _btn_connect(self):
@@ -131,6 +134,9 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.client_thread.server_host = receiver_ip
         self.client_thread.server_port = 5051
         self.client_thread.start()
+
+        self.btn_start_host.setEnabled(0)
+
 
 def _logger_setup() -> logging.Logger:
     """ Module level logger setup to help with dev and debug on server
