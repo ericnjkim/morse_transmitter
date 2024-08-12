@@ -2,15 +2,20 @@ import os
 import sys
 import threading
 from datetime import datetime
-
+import logging
+import socket
 
 from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 
-from scripts.core.functions_morse_translator import translate
-from scripts.core.functions_socket.functions_client import start_client
-from scripts.core.functions_socket.functions_server import start_server, create_local_ip, handle_client
-from scripts.qt.server_thread import ServerThread
+from server_thread import ServerThread
+from client_thread import ClientThread
+
+# allows to import from parent directory
+if '..' not in sys.path: sys.path.append('..')
+
+from core.functions_morse_translator import translate
+
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
@@ -41,12 +46,18 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.current_letter = ""
         self.space_detector = 0
 
-        local_ip = create_local_ip()
+        local_ip = socket.gethostbyname(socket.gethostname())
         self.ledit_local_ip.setText(local_ip)
-        self.server_thread = ServerThread(local_ip, 5050)
-        self.server_thread.client_connected.connect(self._client_connected)
-        self.server_thread.message_received.connect(self._receive_message)
-        self.server_thread.message_clear.connect(self._receive_message_clear)
+
+        self.server_thread = ServerThread(local_ip, 5051)
+        # self.server_thread.client_connected.connect(self._client_connected)
+        # self.server_thread.message_received.connect(self._receive_message)
+        # self.server_thread.message_clear.connect(self._receive_message_clear)
+
+        self.client_thread = ClientThread(local_ip, 5051, 0)
+        self.client_thread.message_received.connect(self._receive_message)
+        self.client_thread.message_clear.connect(self._receive_message_clear)
+
 
     def _btn_start_host(self):
         """ Begins the transmitter's server for another transmitter to connect
@@ -54,9 +65,16 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.server_thread.start()
         self.ledit_connection_status.setText("server started...")
 
-    def _client_connected(self):
-        """ Upon a successful connection, signals user with an updated text."""
-        self.ledit_connection_status.setText("client connected")
+        self.client_thread.start()
+
+        # """ Upon a successful connection, signals user with an updated text."""
+        # self.ledit_connection_status.setText("client connected")
+
+    # def _client_connected(self):
+    #     # set id
+
+
+
 
     def _receive_message(self, message):
         """ Handles the message_received signal when the transmitter receives
@@ -74,7 +92,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         """ The closing of the server and client is handled in the thread so
         this function is mainly for other visual operations.
         """
-        print("connection_closed")
+        self.client_thread
         self.ledit_connection_status.setText("None")
 
     def _btn_dot(self):
@@ -110,17 +128,34 @@ class MorseTransmitter(QtWidgets.QWidget):
         """
         receiver_ip = self.ledit_receiver_ip.text()
         # have some sort of check if the ip was valid or not.
-        start_client(receiver_ip)
+        self.client_thread.server_host = receiver_ip
+        self.client_thread.server_port = 5051
+        self.client_thread.start()
+
+def _logger_setup() -> logging.Logger:
+    """ Module level logger setup to help with dev and debug on server
+    thread.
+    """
+    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(format="%(asctime)s: %(module)s: %(levelname)s: %(funcName)s: %(message)s")
+    logger = logging.getLogger(__name__)
+    # logger.setLevel(level="INFO")
+    # formatter = logging.Formatter(
+    #     "%(asctime)s: %(levelname)s: %(funcName)s: %(message)s")
+    # stream_handler = logging.StreamHandler()
+    # stream_handler.setFormatter(formatter)
+    # logger.addHandler(stream_handler)
+    print("logger_setup")
+    return logger
+
 
 # plaint text edit needs to be uneditable
-# if __name__ == "__main__":
-from pathlib import Path
+def run():
+    _logger_setup()
+    app = QApplication(sys.argv)
+    # app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
+    window = MorseTransmitter()
+    window.show()
+    sys.exit(app.exec_())
 
-app = QApplication(sys.argv)
-# app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
-window = MorseTransmitter()
-window.show()
-sys.exit(app.exec_())
-
-    # btn = QtWidgets.QPushButton()
-    # [print(i) for i in dir(btn)]
+run()
