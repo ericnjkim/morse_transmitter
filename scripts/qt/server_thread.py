@@ -62,38 +62,22 @@ class ServerThread(QThread):
                 logger.warning(f"connection already occupied.")
                 continue
 
-            # print(f"Connected: {address}")
             logger.info(f"successful connection with new client: {address}")
             connection_id = len(self.connection_map) + 1
             self.connection_map[connection_id] = {"socket": connection_socket, "address": address}
-
-            self.broadcast(f"/server_status connection:{address}")
             connection_socket.send("SERVER: successful connection".encode("utf-8"))
+            print(self.connection_map)
 
             server_socket = ServerSocketThread(connection_socket, connection_id, self)
             server_socket.start()
+
+    def server_full(self):
+        return len(self.connection_map) >= 2
 
     def remove_connection(self, id):
         logger.debug(f"client connection to be removed: {id}")
         self.connection_map[id]["socket"].close()
         self.connection_map.pop(id)
-
-            # message = client.recv(1024).decode("utf-8")
-            # print("loop")
-            # if message == "/close":
-            #     print("close operation begun")
-            #     client.close()
-            #     server.close()
-            #     self.connection_closed.emit()
-            #     break
-            # elif message == "/clear":
-            #     print("clearing inbox")
-            #     self.message_clear.emit()
-            # else:
-            #     print(message)
-            #     self.message_received.emit(message)
-            #     print("continue operation")
-
 
     def broadcast(self, message, sender_id=None):
         logger.debug(f"broadcasting: {message} from {sender_id}")

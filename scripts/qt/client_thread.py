@@ -35,6 +35,7 @@ class ClientThread(QThread):
         self.server_port = server_port
         self.id = id # will be set by server
         self.message_to_send = ""
+        self.connected_to_server = False
 
         self.connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -48,8 +49,12 @@ class ClientThread(QThread):
 
 
     def run(self):
-        self.connection_socket.connect((self.server_host, self.server_port))
-        self.receive_thread.start()
+        try:
+            self.connection_socket.connect((self.server_host, self.server_port))
+            self.receive_thread.start()
+            self.connected_to_server = True
+        except:
+            pass
 
     def send_message(self, message):
         if message == "/quit":

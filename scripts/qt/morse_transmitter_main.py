@@ -26,6 +26,10 @@ UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 # right now the gui can only receive one message and has to send one before being able
 # to receive anohter. Check why that is.
 
+# connection status needs updating
+# closing connection needs working on as well
+# manual port writing
+
 class MorseTransmitter(QtWidgets.QWidget):
 
     def __init__(self):
@@ -45,6 +49,7 @@ class MorseTransmitter(QtWidgets.QWidget):
 
         self.current_letter = ""
         self.space_detector = 0
+        self.host_or_connector = 0
 
         local_ip = socket.gethostbyname(socket.gethostname())
         self.ledit_local_ip.setText(local_ip)
@@ -67,6 +72,7 @@ class MorseTransmitter(QtWidgets.QWidget):
 
         self.client_thread.start()
         self.btn_connect.setEnabled(0)
+        self.host_or_connector = 0
 
     def _client_connected(self):
         self.ledit_connection_status.setText("client connected")
@@ -111,13 +117,18 @@ class MorseTransmitter(QtWidgets.QWidget):
         character = translate(self.current_letter)
         if character:
             self.pte_message_sent.insertPlainText(character)
+            print("character writing" + character)
             self._transmit_message(character)
             self.current_letter = ""
             self.space_detector = 0
 
     def _transmit_message(self, message):
-        if len(self.server_thread.connection_map) == 2:
+
+        if ((self.host_or_connector == 0 and self.server_thread.server_full())
+            or (self.host_or_connector == 1 and self.client_thread.connected_to_server)):
+            print("TRANSMITTING "+ message)
             self.client_thread.send_message(message)
+
 
     def _btn_clear(self):
         """ Clears the sent message text window."""
@@ -136,6 +147,8 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.client_thread.start()
 
         self.btn_start_host.setEnabled(0)
+        self.host_or_connector = 1
+
 
 
 def _logger_setup() -> logging.Logger:
