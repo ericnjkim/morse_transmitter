@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>704</width>
-    <height>323</height>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Morse Transmitter</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -30,33 +30,69 @@
        <property name="bottomMargin">
         <number>16</number>
        </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
+       <item row="0" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>Local IP :</string>
+         <property name="rightMargin">
+          <number>0</number>
          </property>
-        </widget>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="ledit_local_ip">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ledit_local_port">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>5050</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_start_host">
+           <property name="minimumSize">
+            <size>
+             <width>80</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Host</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="ledit_connection_status">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="leftMargin">
           <number>0</number>
@@ -65,14 +101,40 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="ledit_receiver_ip">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="rightMargin">
+            <number>0</number>
            </property>
-          </widget>
+           <item>
+            <widget class="QLineEdit" name="ledit_receiver_ip">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ledit_receiver_port">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>5050</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QPushButton" name="btn_connect">
@@ -89,6 +151,19 @@
          </item>
         </layout>
        </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Local IP / Port :</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label">
          <property name="minimumSize">
@@ -98,7 +173,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Receiver IP :</string>
+          <string>Receiver IP / Port :</string>
          </property>
         </widget>
        </item>
@@ -115,34 +190,34 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
+       <item row="2" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
          <property name="rightMargin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="ledit_local_ip">
+          <widget class="QLineEdit" name="ledit_connection_status">
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>30</height>
             </size>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btn_start_host">
+          <widget class="QPushButton" name="btn_disconnect">
            <property name="minimumSize">
             <size>
-             <width>80</width>
-             <height>0</height>
+             <width>0</width>
+             <height>30</height>
             </size>
            </property>
            <property name="text">
-            <string>Host</string>
+            <string>Disconnect</string>
            </property>
           </widget>
          </item>

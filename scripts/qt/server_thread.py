@@ -39,6 +39,8 @@ class ServerThread(QThread):
     message_clear = pyqtSignal()
     connection_closed = pyqtSignal()
 
+    # send message to client when connection found.
+    # Client can use this to decide how to emit status log
     def __init__(self, host, port):
         super().__init__()
         self.host = host
@@ -57,18 +59,22 @@ class ServerThread(QThread):
 
         while True:
             connection_socket, address = self.server_socket.accept()
+            # restricts connection limit for a 2 way transmission.
             if len(self.connection_map) == 2:
-                connection_socket.sendall(f"This connection is occupied.".encode("utf-8"))
+                connection_socket.sendall(
+                    f"This connection is occupied.".encode("utf-8"))
                 logger.warning(f"connection already occupied.")
                 continue
 
             logger.info(f"successful connection with new client: {address}")
             connection_id = len(self.connection_map) + 1
-            self.connection_map[connection_id] = {"socket": connection_socket, "address": address}
-            connection_socket.send("SERVER: successful connection".encode("utf-8"))
-            print(self.connection_map)
-
-            server_socket = ServerSocketThread(connection_socket, connection_id, self)
+            self.connection_map[connection_id] = {
+                "socket": connection_socket, "address": address}
+            # connection_socket.send(
+            #     "/status_log:connection live".encode("utf-8"))
+            self.broadcast("/status_log:connection live")
+            server_socket = ServerSocketThread(
+                connection_socket, connection_id, self)
             server_socket.start()
 
     def server_full(self):

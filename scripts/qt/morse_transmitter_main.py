@@ -33,6 +33,9 @@ UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 # closing connection needs working on as well
 # manual port writing
 
+# self.connection_status should display messages from the threads signals not
+# manual ones
+
 class MorseTransmitter(QtWidgets.QWidget):
     """ The main widget that ties the rest of the scripts together. Running an
     instance of this class will begin the tool.
@@ -42,6 +45,7 @@ class MorseTransmitter(QtWidgets.QWidget):
 
         uic.loadUi(UI_FILE, self)
 
+        # connect buttons
         self.btn_dot.clicked.connect(self._btn_dot)
         self.btn_dot.setShortcut(QtGui.QKeySequence("."))
         self.btn_dash.clicked.connect(self._btn_dash)
@@ -51,58 +55,85 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.btn_clear.clicked.connect(self._btn_clear)
         self.btn_start_host.clicked.connect(self._btn_start_host)
         self.btn_connect.clicked.connect(self._btn_connect)
+        self.btn_disconnect.clicked.connect(self._btn_disconnect)
 
+        # working variables
         self.current_letter = ""
         self.space_detector = 0
         self.host_or_connector = 0
 
+        # default parameters
         local_ip = socket.gethostbyname(socket.gethostname())
+        port = "5050"
         self.ledit_local_ip.setText(local_ip)
+        self.ledit_local_port.setText(port)
+        self.ledit_receiver_port.setText(port)
 
-        self.server_thread = ServerThread(local_ip, 5051)
-        self.server_thread.client_connected.connect(self._client_connected)
-        # self.server_thread.message_received.connect(self._receive_message)
-        # self.server_thread.message_clear.connect(self._receive_message_clear)
+        # Qthread initialisations
+        self.server_thread = ServerThread(local_ip, port)
 
-        self.client_thread = ClientThread(local_ip, 5051, 0)
+        self.client_thread = ClientThread(local_ip, port, 0)
         self.client_thread.message_received.connect(self._receive_message)
         self.client_thread.message_clear.connect(self._receive_message_clear)
+        self.client_thread.status_log.connect(self._handle_status_log)
 
+    # _____functions for retrieving values_____
+    def _get_local_ip_and_port(self) -> tuple:
+        return (self.ledit_local_ip.text(), int(self.ledit_local_port.text()))
 
+    def _get_receiver_ip_and_port(self) -> tuple:
+        return (self.ledit_receiver_ip.text(), int(self.ledit_receiver_port.text()))
+
+    # _____functions for connection buttons_____
     def _btn_start_host(self) -> None:
         """ Begins the transmitter's server for another transmitter to connect
         to."""
+        _, local_port = self._get_local_ip_and_port()
+        self.server_thread.port = local_port
         self.server_thread.start()
-        self.ledit_connection_status.setText("server started...")
+        # self.ledit_connection_status.setText("server started...")
 
+        self.client_thread.server_port = local_port
         self.client_thread.start()
         self.btn_connect.setEnabled(0)
-        self.host_or_connector = 0
+        self.btn_start_host.setEnabled(0)
+        self.btn_host.setEnabled(0)
 
-    def _client_connected(self) -> None:
+        self.host_or_connector = 0
+        self._handle_status_log("hosting")
+
+    def _btn_connect(self) -> None:
+        """ Initiates the connection between the local transmitter and a target
+        transmitter.
+        """
+        receiver_ip, receiver_port = self._get_receiver_ip_and_port()
+        # have some sort of check if the ip was valid or not.
+        self.client_thread.server_host = receiver_ip
+        self.client_thread.server_port = receiver_port
+        self.client_thread.start()
+
+        self.btn_start_host.setEnabled(0)
+        self.btn_connect.setEnabled(0)
+        self.host_or_connector = 1
+
+    def _btn_disconnect(self):
+
+
+    # _____functions for signal handling_____
+    def _handle_status_log(self, message) -> None:
         """ Upon a successful connection, signals user with an updated text."""
-        self.ledit_connection_status.setText("client connected")
+        self.ledit_connection_status.setText(message)
 
     def _receive_message(self, message) -> None:
-        """ Handles the message_received signal when the transmitter receives
-        a message and places it into the received message box.
-        """
+        """ Handles the message_received signal and pastes text into box."""
         print(f"received message {message}")
         self.pte_message_recv.insertPlainText(message)
 
     def _receive_message_clear(self) -> None:
-        """ Handles the message_clear signal when the transmitter receives
-        the prompt to clear the received message box.
-        """
+        """ Handles the message_clear signal and clears message box."""
         self.pte_message_recv.clear()
 
-    def _connection_closed(self) -> None:
-        """ The closing of the server and client is handled in the thread so
-        this function is mainly for other visual operations.
-        """
-        self.client_thread
-        self.ledit_connection_status.setText("None")
-
+    # _____functions for morse typing buttons_____
     def _btn_dot(self) -> None:
         self.current_letter += "."
 
@@ -128,33 +159,18 @@ class MorseTransmitter(QtWidgets.QWidget):
             self.current_letter = ""
             self.space_detector = 0
 
-    def _transmit_message(self, message):
-
-        if ((self.host_or_connector == 0 and self.server_thread.server_full())
-            or (self.host_or_connector == 1 and self.client_thread.connected_to_server)):
-            print("TRANSMITTING "+ message)
-            self.client_thread.send_message(message)
-
-
     def _btn_clear(self) -> None:
         """ Clears the sent message text window."""
         self.pte_message_sent.clear()
         self._transmit_message("/clear")
         self.space_detector = 0
 
-    def _btn_connect(self) -> None:
-        """ Initiates the connection between the local transmitter and a target
-        transmitter.
-        """
-        receiver_ip = self.ledit_receiver_ip.text()
-        # have some sort of check if the ip was valid or not.
-        self.client_thread.server_host = receiver_ip
-        self.client_thread.server_port = 5051
-        self.client_thread.start()
-
-        self.btn_start_host.setEnabled(0)
-        self.host_or_connector = 1
-
+    def _transmit_message(self, message):
+        """ If a receiver is present, transmit message."""
+        if ((self.host_or_connector == 0 and self.server_thread.server_full())
+            or (self.host_or_connector == 1 and self.client_thread.connected_to_server)):
+            print("TRANSMITTING "+ message)
+            self.client_thread.send_message(message)
 
 
 def _logger_setup() -> logging.Logger:
@@ -174,11 +190,10 @@ def _logger_setup() -> logging.Logger:
     return logger
 
 
-# plaint text edit needs to be uneditable
 def run():
     _logger_setup()
     app = QApplication(sys.argv)
-    # app.setStyleSheet(Path('ui/breeze_dark.qss').read_text())
+    app.setStyleSheet(Path('qss/dark.qss').read_text())
     window = MorseTransmitter()
     window.show()
     sys.exit(app.exec_())
