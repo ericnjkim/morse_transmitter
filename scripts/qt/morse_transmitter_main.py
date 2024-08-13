@@ -104,7 +104,6 @@ class MorseTransmitter(QtWidgets.QWidget):
         _, local_port = self._get_local_address()
         self.server_thread.port = local_port
         self.server_thread.start()
-        # self.ledit_connection_status.setText("server started...")
 
         self.client_thread.server_port = local_port
         self.client_thread.start()
@@ -135,8 +134,11 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.host_or_connector = 1
 
     def _btn_disconnect(self):
-        pass
-
+        # currently the non host can disconnect but will crash when trying to
+        # transmit after a dc. Probably something like a handle to a
+        # nonexistent address
+        self.server_thread.close_server()
+        self.client_thread.disconnect()
 
     # _____functions for signal handling_____
     def _handle_status_log(self, message) -> None:

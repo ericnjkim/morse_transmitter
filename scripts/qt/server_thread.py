@@ -96,7 +96,7 @@ class ServerThread(QThread):
         for id in self.connection_map:
             self.connection_map[id]["socket"].close()
         print("Server shutting down...")
-        os._exit(0)
+        # os._exit(0)
 
 class ServerSocketThread(QThread):
 
