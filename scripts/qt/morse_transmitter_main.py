@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QDialog
 
 from server_thread import ServerThread
 from client_thread import ClientThread
+from message_dialog import MessageDialog
 
 # allows to import from parent directory
 if '..' not in sys.path: sys.path.append('..')
@@ -78,17 +79,29 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.client_thread.status_log.connect(self._handle_status_log)
 
     # _____functions for retrieving values_____
-    def _get_local_ip_and_port(self) -> tuple:
+    def _get_local_address(self) -> tuple:
         return (self.ledit_local_ip.text(), int(self.ledit_local_port.text()))
 
-    def _get_receiver_ip_and_port(self) -> tuple:
+    def _get_receiver_address(self) -> tuple:
         return (self.ledit_receiver_ip.text(), int(self.ledit_receiver_port.text()))
+
+    def _local_address_populated(self) -> bool:
+         return (self.ledit_local_ip.text() and self.ledit_local_port.text())
+
+    def _receiver_address_populated(self) -> bool:
+         return (self.ledit_receiver_ip.text() and self.ledit_receiver_port.text())
 
     # _____functions for connection buttons_____
     def _btn_start_host(self) -> None:
         """ Begins the transmitter's server for another transmitter to connect
         to."""
-        _, local_port = self._get_local_ip_and_port()
+        # end early if parameters are not filled
+        if not self._local_address_populated():
+            msg = "Local address not fully populated.\nCannot host."
+            dlg = MessageDialog(msg)
+            dlg.exec()
+            return
+        _, local_port = self._get_local_address()
         self.server_thread.port = local_port
         self.server_thread.start()
         # self.ledit_connection_status.setText("server started...")
@@ -97,7 +110,6 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.client_thread.start()
         self.btn_connect.setEnabled(0)
         self.btn_start_host.setEnabled(0)
-        self.btn_host.setEnabled(0)
 
         self.host_or_connector = 0
         self._handle_status_log("hosting")
@@ -106,7 +118,13 @@ class MorseTransmitter(QtWidgets.QWidget):
         """ Initiates the connection between the local transmitter and a target
         transmitter.
         """
-        receiver_ip, receiver_port = self._get_receiver_ip_and_port()
+        # end early if parameters are not filled
+        if not self._receiver_address_populated():
+            msg = "Receiver address not fully populated.\nCannot connect."
+            dlg = MessageDialog(msg)
+            dlg.exec()
+            return
+        receiver_ip, receiver_port = self._get_receiver_address()
         # have some sort of check if the ip was valid or not.
         self.client_thread.server_host = receiver_ip
         self.client_thread.server_port = receiver_port
@@ -117,6 +135,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.host_or_connector = 1
 
     def _btn_disconnect(self):
+        pass
 
 
     # _____functions for signal handling_____
