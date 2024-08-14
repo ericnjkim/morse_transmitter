@@ -31,6 +31,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         uic.loadUi(UI_FILE, self)
 
         self.timer = MorseTransmissionTimer()
+        self.timer_blank = MorseTransmissionTimer()
 
         self.btn_transmit.pressed.connect(self._btn_transmit_pressed)
         self.btn_transmit.released.connect(self._btn_transmit_released)
@@ -80,16 +81,34 @@ class MorseTransmitter(QtWidgets.QWidget):
 
     def _btn_transmit_pressed(self):
 
+        # ends timer_blank upon clicking transmit
+        self.timer_blank.end_timer()
+        transmission = self.timer_blank.transmission()
+        self.timer_blank.reset()
+        if transmission == "_":
+
+
+
         self.timer.start_timer()
+        print("PRESSED")
 
     def _btn_transmit_released(self):
 
         self.timer.end_timer()
         transmission = self.timer.transmission()
+        if transmission == "/": transmission = "_"
         # self.pte_message_sent.insertPlainText(transmission)
         self.current_letter += transmission
+        print("RELEASED")
 
-        # if left for a dash amount of time add anohter space
+        self.timer_blank.start_timer()
+
+    # def _blank_counter_start(self):
+    #     self.timer_blank.start_timer()
+    #
+    # def _blank_counter_end(self):
+
+    # if left for a dash amount of time add anohter space
 
     # need to distinguish hte end of a letter with the end of a word by lenght of time
     def _space(self):
