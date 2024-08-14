@@ -33,6 +33,17 @@ space. The receiver should be receiving this message as it is typed out.
 To clear the message, hit the clear button and it will clear on both your and
 the receiver's message window.
 
+
+### How it works:
+
+#### Socket operations:
+
+#### Morse clicker:
+
+[//]: # (### Challenges:)
+
+[//]: # (### Future goals:)
+
 ### Credits
 Qss style sheet base before modifications and qss icons: 
 https://github.com/SZinedine/QBreeze

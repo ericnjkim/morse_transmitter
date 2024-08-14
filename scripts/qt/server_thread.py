@@ -33,7 +33,6 @@ class ServerThread(QThread):
     """ Operations for the transmitter's ability to connect to another
     transmitter and for handling received messages.
     """
-    # client_connected = pyqtSignal(tuple)
     client_connected = pyqtSignal()
     message_received = pyqtSignal(str)
     message_clear = pyqtSignal()
@@ -52,7 +51,10 @@ class ServerThread(QThread):
         logging.debug(f"function completion")
 
     def run(self):
-
+        """ Begins the server and listens for any incoming connections.
+        Any valid connection requests create a new ServerSocketThread to receive
+        data from the connected client through.
+        """
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen()
         logger.debug(f"server socket listening...")
@@ -77,21 +79,23 @@ class ServerThread(QThread):
                 connection_socket, connection_id, self)
             server_socket.start()
 
-    def server_full(self):
+    def server_full(self) -> bool:
         return len(self.connection_map) >= 2
 
-    def remove_connection(self, id):
+    def remove_connection(self, id) -> None:
         logger.debug(f"client connection to be removed: {id}")
         self.connection_map[id]["socket"].close()
         self.connection_map.pop(id)
 
     def broadcast(self, message, sender_id=None):
+        """ Sends a messsage to all connected clients excluding the sender."""
         logger.debug(f"broadcasting: {message} from {sender_id}")
         for id in self.connection_map:
             if id != sender_id:
                 self.connection_map[id]["socket"].send(message.encode("utf-8"))
 
     def close_server(self):
+        """ Disconnects all clients from the server."""
         logger.debug(f"server closing...")
         for id in self.connection_map:
             self.connection_map[id]["socket"].close()
@@ -99,7 +103,9 @@ class ServerThread(QThread):
         # os._exit(0)
 
 class ServerSocketThread(QThread):
-
+    """ This class acts as a constantly listening message receiver for each of
+    the server's connected clients.
+    """
     def __init__(self, socket_connection, id, server):
         super().__init__()
         self.socket_connection = socket_connection
@@ -107,7 +113,8 @@ class ServerSocketThread(QThread):
         self.server = server
         logger.debug(f"function completion")
 
-    def run(self):
+    def run(self) -> None:
+        """ Begins listening for messages from the client socket."""
         while True:
             message = self.socket_connection.recv(1024).decode("utf-8")
             logger.debug(f"received message from {id}: {message}")
