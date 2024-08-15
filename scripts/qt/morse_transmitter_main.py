@@ -63,6 +63,9 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.space_detector = 0
         self.host_or_connector = 0
 
+        # default widget disablings
+        self.btn_disconnect.setEnabled(0)
+
         # default parameters
         local_ip = socket.gethostbyname(socket.gethostname())
         port = "5050"
@@ -109,6 +112,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.client_thread.start()
         self.btn_connect.setEnabled(0)
         self.btn_start_host.setEnabled(0)
+        self.btn_disconnect.setEnabled(1)
 
         self.host_or_connector = 0
         self._handle_status_log("hosting")
@@ -131,12 +135,16 @@ class MorseTransmitter(QtWidgets.QWidget):
 
         self.btn_start_host.setEnabled(0)
         self.btn_connect.setEnabled(0)
+        self.btn_disconnect.setEnabled(1)
         self.host_or_connector = 1
 
     def _btn_disconnect(self):
         # currently the non host can disconnect but will crash when trying to
         # transmit after a dc. Probably something like a handle to a
         # nonexistent address
+        self.btn_disconnect.setEnabled(0)
+        self.btn_connect.setEnabled(1)
+        self.btn_start_host.setEnabled(1)
         self.server_thread.close_server()
         self.client_thread.disconnect()
 
@@ -211,6 +219,8 @@ def _logger_setup() -> logging.Logger:
     return logger
 
 
+# https://stackoverflow.com/questions/16382899/python-socket-socket-error-bad-file-descriptor
+# check this thingy
 def run():
     _logger_setup()
     app = QApplication(sys.argv)
