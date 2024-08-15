@@ -214,7 +214,7 @@ def _logger_setup() -> logging.Logger:
 def run():
     _logger_setup()
     app = QApplication(sys.argv)
-    app.setStyleSheet(Path('qss/dark.qss').read_text())
+    # app.setStyleSheet(Path('qss/dark.qss').read_text())
     window = MorseTransmitter()
     window.show()
     sys.exit(app.exec_())

@@ -3,7 +3,11 @@
 added_files = [
     ("../scripts/qt/ui/morse_transmitter_main.ui", "ui/."),
     ("../scripts/qt/qss/dark.qss", "qss/."),
-    ("../scripts/qt/qss/dark_icons", "qss/dark_icons/")
+    ("../scripts/qt/qss/dark_icons", "qss/dark_icons/"),
+    ("../scripts/qt/server_thread.py", "."),
+    ("../scripts/qt/client_thread.py", "."),
+    ("../scripts/qt/message_dialog.py", "."),
+    ("../scripts/core/functions_morse_translator.py", "core/."),
 ]
 
 a = Analysis(

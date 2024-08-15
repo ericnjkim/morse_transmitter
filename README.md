@@ -33,16 +33,56 @@ space. The receiver should be receiving this message as it is typed out.
 To clear the message, hit the clear button and it will clear on both your and
 the receiver's message window.
 
-
 ### How it works:
 
-#### Socket operations:
-
 #### Morse clicker:
+Uses buttons for `. _ /` to write out a morse letter. 
+The `/` allows the user to state when we've reached the end of 
+a letter and two of these will create a space.
+The `/` is not part of morse but because the gui uses buttons rather than a 
+timer to dictate what is a dot and dash, we also needed a way to determine the
+end of a letter or word without a timer.
 
-[//]: # (### Challenges:)
+#### Socket operations:
+Each instance of the gui has a server thread and client thread. 
+The server is used as the communication line between two gui's through their
+client threads and the client threads are what send and receive data and decide 
+how to handle received data in the main gui by emitting custom signals.
 
-[//]: # (### Future goals:)
+When the gui is hosting, the server will activate and the client will connect to 
+the local server. This will then allow one other gui to connect to this server 
+and upon this successful connection, the communication between these two gui's 
+will be live.
+
+When the gui is connecting to a host, the server thread is kept deactivated and 
+the client thread will attempt to connect to the target host.
+
+[//]: # (insert some drawn image diagram of this)
+
+#### Displaying received data on the gui:
+The client thread acts as a handler for incoming data. When a message is 
+received, it emits a signal to the main gui that displays the message on 
+the received message text box. Special action messages such as /clear and 
+/status_log:message are handled as separate actions so upon receiving these,
+the client thread will emit other signals for clearing the received message box
+and to display a message in the status log.
+
+I usually prefer to keep logic separate to the qt scripts but in this case
+I had to integrate the two as I needed a way for a receiver function to 
+continuously receive a message and act upon it without ending the loop 
+with a return function which I was able to do by having the receiver 
+simultaneously emit signals upon receiving new messages.
+
+### Challenges:
+Socket operations: This is the first project I had to use sockets and a network to have a 
+communicative path between two guis so it took a while of trial and error to
+come to a solution of how to get a gui to be both capable of hosting or 
+connecting.
+
+Debugging: The use of multiple Qthreads as part of the socket made debugging and 
+backtracking where things were going wrong quite difficult so logging from the 
+logging library was integrated to provide a more robust way to track all actions
+and events each gui had.
 
 ### Credits
 Qss style sheet base before modifications and qss icons: 
