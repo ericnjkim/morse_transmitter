@@ -58,6 +58,7 @@ When the gui is connecting to a host, the server thread is kept deactivated and
 the client thread will attempt to connect to the target host.
 
 [//]: # (insert some drawn image diagram of this)
+<img src="/_readme_images/server_client_diagram.png" alt="server_client_diagram" width="700"/>
 
 #### Displaying received data on the gui:
 The client thread acts as a handler for incoming data. When a message is 
@@ -91,3 +92,4 @@ https://github.com/SZinedine/QBreeze
 ### WIP
 - See if I can get the morse buttons to be replaced with a single button and
 work off timing for dots and dashes.
+- Disconnect operations for sockets need to be fixed and integrated.
