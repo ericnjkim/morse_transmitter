@@ -14,28 +14,11 @@ from server_thread import ServerThread
 from client_thread import ClientThread
 from message_dialog import MessageDialog
 
-# allows to import from parent directory
-if '..' not in sys.path: sys.path.append('..')
-
-from core.functions_morse_translator import translate
-
+from functions_morse_translator import translate
 
 
 UI_FILE = f"{os.path.dirname(__file__)}/ui/morse_transmitter_main.ui"
 
-# - See if I can get the morse buttons to be replaced with a single button and
-# work off timing for dots and dashes.
-# if someone connects to this server, immediately connect to them too
-
-# right now the gui can only receive one message and has to send one before being able
-# to receive anohter. Check why that is.
-
-# connection status needs updating
-# closing connection needs working on as well
-# manual port writing
-
-# self.connection_status should display messages from the threads signals not
-# manual ones
 
 class MorseTransmitter(QtWidgets.QWidget):
     """ The main widget that ties the rest of the scripts together. Running an
@@ -57,6 +40,7 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.btn_start_host.clicked.connect(self._btn_start_host)
         self.btn_connect.clicked.connect(self._btn_connect)
         self.btn_disconnect.clicked.connect(self._btn_disconnect)
+        self.btn_disconnect.hide()
 
         # working variables
         self.current_letter = ""
@@ -139,9 +123,6 @@ class MorseTransmitter(QtWidgets.QWidget):
         self.host_or_connector = 1
 
     def _btn_disconnect(self):
-        # currently the non host can disconnect but will crash when trying to
-        # transmit after a dc. Probably something like a handle to a
-        # nonexistent address
         self.btn_disconnect.setEnabled(0)
         self.btn_connect.setEnabled(1)
         self.btn_start_host.setEnabled(1)
@@ -183,7 +164,6 @@ class MorseTransmitter(QtWidgets.QWidget):
         character = translate(self.current_letter)
         if character:
             self.pte_message_sent.insertPlainText(character)
-            print("character writing" + character)
             self._transmit_message(character)
             self.current_letter = ""
             self.space_detector = 0
@@ -198,7 +178,6 @@ class MorseTransmitter(QtWidgets.QWidget):
         """ If a receiver is present, transmit message."""
         if ((self.host_or_connector == 0 and self.server_thread.server_full())
             or (self.host_or_connector == 1 and self.client_thread.connected_to_server)):
-            print("TRANSMITTING "+ message)
             self.client_thread.send_message(message)
 
 
@@ -209,18 +188,10 @@ def _logger_setup() -> logging.Logger:
     logging.basicConfig(level=logging.DEBUG)
     logging.basicConfig(format="%(asctime)s: %(module)s: %(levelname)s: %(funcName)s: %(message)s")
     logger = logging.getLogger(__name__)
-    # logger.setLevel(level="INFO")
-    # formatter = logging.Formatter(
-    #     "%(asctime)s: %(levelname)s: %(funcName)s: %(message)s")
-    # stream_handler = logging.StreamHandler()
-    # stream_handler.setFormatter(formatter)
-    # logger.addHandler(stream_handler)
     print("logger_setup")
     return logger
 
 
-# https://stackoverflow.com/questions/16382899/python-socket-socket-error-bad-file-descriptor
-# check this thingy
 def run():
     _logger_setup()
     app = QApplication(sys.argv)

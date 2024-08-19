@@ -10,13 +10,13 @@ messages across this connection.
 ### Directory contents:
 Further docstrings can be found in modules.
 
-- executables/: Compiled standalone exe to run the project and spec file to build
-the exe.
 - scripts/: working files for the tool.
-  - scripts/core/: All logic for the working operation of the tool including use of the transcription model and any generic python library scripts.
-  - scripts/qt/: All qt related scripts for tying the core scripts into the gui's widgets.
-    - scripts/qt/qss/: Qt style sheet and icons for the gui.
-    - scripts/qt/ui/: The ui files for the widget layout of the gui.
+    - scripts/qss/: Qt style sheet and icons for the gui.
+    - scripts/ui/: The ui files for the widget layout of the gui.
+
+### Installation and running:
+This project used python3.12 and can be run directly in an editor or through 
+a terminal by running `python scripts/morse_transmitter_main.py` within a venv.
 
 ### Using the tool:
 The gui upon execution requires a connection to be made to another instance of
@@ -57,7 +57,6 @@ will be live.
 When the gui is connecting to a host, the server thread is kept deactivated and 
 the client thread will attempt to connect to the target host.
 
-[//]: # (insert some drawn image diagram of this)
 <img src="/_readme_images/server_client_diagram.png" alt="server_client_diagram" width="700"/>
 
 #### Displaying received data on the gui:
@@ -93,3 +92,5 @@ https://github.com/SZinedine/QBreeze
 - See if I can get the morse buttons to be replaced with a single button and
 work off timing for dots and dashes.
 - Disconnect operations for sockets need to be fixed and integrated.
+- Compile project into executable file.
+- Get qss working.
